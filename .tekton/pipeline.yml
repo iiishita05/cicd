@@ -1,0 +1,32 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: cicd-pipeline
+spec:
+  tasks:
+    - name: lint
+      taskRef:
+        name: lint-task
+    - name: test
+      runAfter: [lint]
+      taskRef:
+        name: nose-test-task
+    - name: build
+      runAfter: [test]
+      taskSpec:
+        steps:
+          - name: build
+            image: gcr.io/kaniko-project/executor:latest
+            script: |
+              echo "Building docker image..."
+              # sample build command
+              echo "Simulating build..."
+    - name: deploy
+      runAfter: [build]
+      taskSpec:
+        steps:
+          - name: deploy
+            image: bitnami/kubectl
+            script: |
+              echo "Deploying to OpenShift..."
+              # You could simulate a kubectl apply here
